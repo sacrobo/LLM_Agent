@@ -1,80 +1,101 @@
-# LLM Agent POC - Modern Chat Interface
+# Modern Chat Interface
 
-A modern, responsive chat interface for LLM (Large Language Model) interactions with a sleek dark theme design.
+A sleek and responsive chat interface with a modern dark theme design, perfect for AI-powered conversations.
 
-## Features
+## 🌟 Features
 
-- 🎨 Modern dark theme with vibrant gradients
-- 💬 Clean chat interface with distinct user/assistant messages
-- 🔧 Multiple LLM provider support:
-  - OpenAI
-  - AI Pipe (OpenRouter-style)
-  - Anthropic Claude
-  - Google Gemini
-- 🔍 Integrated web search capabilities
-- 💻 Code execution support
-- 📱 Responsive design for all devices
+- 🎨 Modern dark theme with vibrant gradient styling
+- 💬 Distinct message bubbles for user and assistant
+- 🏷️ Clear message labels for better conversation flow
+- ✨ Smooth animations and hover effects
+- 📱 Fully responsive design for all devices
 
-## Tech Stack
+## 🛠️ Tech Stack
 
-- Frontend:
-  - HTML5
-  - CSS3 (Modern styling with gradients and animations)
-  - JavaScript
-  - Bootstrap 5.3.3
-  - Bootstrap Icons
+- HTML5
+- CSS3 (Modern features):
+  - CSS Variables
+  - Flexbox
+  - Gradients
+  - Transitions
+- Bootstrap 5.3.3
+- Bootstrap Icons
 
-## Setup
-
-1. Clone the repository
-2. Configure your API keys in the interface:
-   - LLM Provider API key
-   - (Optional) Google Search API key and CSE CX for web search
-
-## Project Structure
+## 📂 Project Structure
 
 ```
-├── app.py              # Main application logic
-├── index.html          # Frontend interface
-├── style.css           # Modern dark theme styling
-└── vercel.json         # Vercel deployment configuration
+├── index.html    # Main HTML interface
+├── style.css     # Modern dark theme styling
+├── agent.js      # Chat functionality
+└── vercel.json   # Vercel deployment config
 ```
 
-## Deployment
+## 🚀 Quick Start
 
-This project is configured for deployment on Vercel. The `vercel.json` configuration handles:
-- Python backend routing
-- API endpoints
-- Static file serving
+### Running Locally
 
-## Features in Detail
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd <project-folder>
+   ```
 
-### Chat Interface
-- Modern dark theme with vibrant gradients
-- Clear message labeling for user and assistant
-- Animated message transitions
-- Code block support with syntax highlighting
+2. Using Python's built-in server:
+   ```bash
+   python -m http.server 8000
+   ```
 
-### User Experience
-- Real-time response streaming
-- Clear visual feedback for system status
-- Intuitive input interface
-- Mobile-responsive design
+3. Open your browser and visit:
+   ```
+   http://localhost:8000
+   ```
 
-### API Integration
-- Multiple LLM provider support
-- Web search capabilities
-- Code execution environment
+### Deployment
 
-## Development
+The project is configured for Vercel deployment with the following features:
+- Automatic static file serving
+- Proper routing configuration
+- Asset optimization
 
-To run the project locally:
+## 💅 Styling Features
 
-1. Set up your environment variables
-2. Install the required dependencies
-3. Run the Python application
-4. Open `index.html` in your browser
+### Dark Theme
+- Rich dark background with subtle gradients
+- High contrast text for readability
+- Vibrant accent colors for interactive elements
 
-## License
+### Chat Messages
+- User messages: Purple/pink gradient theme
+- Assistant messages: Cyan/blue gradient theme
+- Hover animations for enhanced interactivity
+- Clear role labels above messages
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+### Interface Elements
+- Modern input field with custom styling
+- Responsive layout adjustments
+- Smooth transitions and animations
+
+## 🔧 Customization
+
+You can easily customize the theme by modifying CSS variables in `style.css`:
+
+```css
+:root {
+  --radius: 16px;
+  --bubble-shadow: 0 6px 18px rgba(0, 0, 0, .25);
+  --bg-dark: #1a1b26;
+  --bg-darker: #16171f;
+}
+```
+
+## 📱 Responsive Design
+
+- Adapts to different screen sizes
+- Mobile-friendly interface
+- Optimized message bubbles for small screens
+- Maintains readability across devices
+
+## 📄 License
+
+MIT License - Feel free to use this project for your own applications.
+
