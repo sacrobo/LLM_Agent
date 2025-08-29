@@ -178,6 +178,49 @@ function populateModelOptions() {
   }
 }
 
+/* -------------------------------
+   SANITIZER: Remove empty tool_calls etc.
+   ------------------------------- */
+function sanitizeMessagesForOpenAI(messages) {
+  return messages.map((m) => {
+    const out = { role: m.role };
+
+    // Common content handling
+    const asString = (v) => (typeof v === 'string' ? v : (v == null ? '' : JSON.stringify(v)));
+
+    if (m.role === 'assistant') {
+      const tc = Array.isArray(m.tool_calls) ? m.tool_calls.filter(Boolean) : [];
+      if (tc.length > 0) {
+        // Keep tool_calls, ensure proper shape, set content to null if empty
+        out.tool_calls = tc.map((t) => ({
+          id: t.id,
+          type: 'function',
+          function: {
+            name: t.function?.name,
+            arguments: typeof t.function?.arguments === 'string'
+              ? t.function.arguments
+              : JSON.stringify(t.function?.arguments || {})
+          }
+        }));
+        const c = (m.content ?? '').toString().trim();
+        out.content = c.length ? c : null; // OpenAI allows null when using tool_calls
+      } else {
+        // DO NOT send empty array
+        out.content = asString(m.content ?? '');
+      }
+    } else if (m.role === 'tool') {
+      out.tool_call_id = m.tool_call_id;
+      if (m.name) out.name = m.name;
+      out.content = asString(m.content ?? '');
+    } else {
+      // user/system
+      out.content = asString(m.content ?? '');
+      if (m.name) out.name = m.name;
+    }
+    return out;
+  });
+}
+
 // -------- Core reasoning loop (assistant always pushed; tool ids matched) --------
 async function agentLoop() {
   if (state.running) return;
@@ -191,23 +234,20 @@ async function agentLoop() {
 
       const msg = getAssistantMessage(resp);
 
-      // Always push assistant with tool_calls (even if content is empty)
+      // Only include tool_calls when non-empty
+      const toolCalls = Array.isArray(msg?.tool_calls) ? msg.tool_calls.filter(Boolean) : [];
       const assistantMsg = {
         role: 'assistant',
-        content: msg?.content || '',
-        tool_calls: Array.isArray(msg?.tool_calls) ? msg.tool_calls : []
+        content: msg?.content || ''
       };
+      if (toolCalls.length > 0) assistantMsg.tool_calls = toolCalls;
       state.messages.push(assistantMsg);
 
       // Render assistant text if any
       if (msg?.content) addMessage('assistant', escapeHtml(msg.content));
 
       // Execute tool calls
-      const toolCalls = assistantMsg.tool_calls || [];
       if (toolCalls.length === 0) break;
-
-      // system/tool messages are hidden by addMessage, but we still add this line for debugging if you unhide system
-      // addMessage('system', `Tools requested: ${toolCalls.map(t => t.function.name).join(', ')}`);
 
       for (const tc of toolCalls) {
         let args = {};
@@ -276,7 +316,8 @@ async function callLLM(messages, tools) {
 async function callOpenAI(apiKey, model, messages, maxTokens, tools) {
   const url = 'https://api.openai.com/v1/chat/completions';
   const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` };
-  const body = { model, messages, max_tokens: maxTokens, temperature: 0.7, tools };
+  const safeMessages = sanitizeMessagesForOpenAI(messages);
+  const body = { model, messages: safeMessages, max_tokens: maxTokens, temperature: 0.7, tools };
   const res = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body) });
   if (!res.ok) throw new Error(await res.text());
   return await res.json();
@@ -286,7 +327,8 @@ async function callOpenAI(apiKey, model, messages, maxTokens, tools) {
 async function callAIPipe(apiKey, model, messages, maxTokens, tools) {
   const url = 'https://aipipe.org/openrouter/v1/chat/completions';
   const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey.trim()}` };
-  const body = { model, messages, max_tokens: maxTokens, temperature: 0.7, tools };
+  const safeMessages = sanitizeMessagesForOpenAI(messages);
+  const body = { model, messages: safeMessages, max_tokens: maxTokens, temperature: 0.7, tools };
   const res = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body) });
   if (!res.ok) {
     const text = await res.text();
